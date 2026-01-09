@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+yt-dlp
+ffmpeg-python
+python-dotenv
+openai-whisper
+torch
+sentence-transformers
+faiss-cpu
