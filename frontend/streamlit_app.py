@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 import time
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 if "ready" not in st.session_state:
     st.session_state.ready = False
@@ -24,8 +27,9 @@ def format_eta(seconds: int) -> str:
         return f"{seconds} seconds"
     return f"{seconds // 60 + 1} minutes"
 
-INGEST_URL = "http://127.0.0.1:8000/video/ingest"
-QA_URL = "http://127.0.0.1:8000/qa/ask"
+API_BASE_URL=os.getenv("API_BASE_URL", "http://api:8000")
+INGEST_URL = f"{API_BASE_URL}/video/ingest"
+QA_URL = f"{API_BASE_URL}/qa/ask"
 
 st.set_page_config(page_title="YouTube Video Summarizer & Q&A")
 
@@ -65,10 +69,10 @@ if st.session_state.get("processing"):
     eta_box.info(f"Estimated time remaining: ...")
     while True:
         res = requests.get(
-            f"http://127.0.0.1:8000/video/status/{st.session_state.task_id}"
+            f"{API_BASE_URL}/video/status/{st.session_state.task_id}"
         ).json()
 
-        eta_res = requests.get(f"http://127.0.0.1:8000/video/eta/{st.session_state.task_id}").json()
+        eta_res = requests.get(f"{API_BASE_URL}/video/eta/{st.session_state.task_id}").json()
         eta = eta_res.get("eta_seconds")
 
         if eta:
@@ -91,7 +95,7 @@ if st.session_state.get("processing"):
             st.session_state.ready = True
             # st.session_state.summary = res.get("summary")
             summary_res = requests.get(
-                "http://127.0.0.1:8000/video/summary"
+                f"{API_BASE_URL}/video/summary"
             ).json()
 
             st.session_state.summary = summary_res.get("summary", "")

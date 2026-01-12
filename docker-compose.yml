@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   redis:
     image: redis:7
@@ -7,29 +5,40 @@ services:
     ports:
       - "6379:6379"
 
-  api:
+  app:
     build: .
-    container_name: fastapi
+    image: video-summarizer-app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  api:
+    image: video-summarizer-app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - redis
 
   worker:
-    build: .
-    container_name: rq-worker
-    command: rq worker ingestion
+    image: video-summarizer-app
+    command: rq worker ingestion --worker-class rq.worker.SimpleWorker
     env_file:
       - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - redis
 
   streamlit:
-    build: .
-    container_name: streamlit
+    image: video-summarizer-app
     command: streamlit run frontend/streamlit_app.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
