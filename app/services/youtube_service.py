@@ -20,6 +20,7 @@ class YouTubeService:
                     "preferredquality": "192",
                 }
             ],
+            "cookiefile": "app/cookies.txt" if os.path.exists("app/cookies.txt") else "cookies.txt",
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

@@ -36,6 +36,8 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
+    volumes:
+      - ./cookies.txt:/app/cookies.txt:ro
 
   streamlit:
     image: video-summarizer-app
