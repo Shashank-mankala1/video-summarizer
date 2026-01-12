@@ -104,14 +104,16 @@ class SpeechToTextService:
         print(f"[DEBUG] Transcription mode: {'PARALLEL' if duration > 300 else 'SINGLE'}")
 
         # 5 minutes threshold
-        THRESHOLD = 300
-        if duration > THRESHOLD:
-            try:
-                print(f"DEBUG: Duration {duration}s > {THRESHOLD}s. 🚀 Starting PARALLEL transcription...")
-                return self.transcribe_parallel(audio_path, output_dir)
-            except Exception as e:
-                print(f"ERROR: Parallel transcription failed: {e}")
-                return self.transcribe_single(audio_path, output_dir)
-        else:
-            print(f"DEBUG: Duration {duration}s <= {THRESHOLD}s. 🐢 Starting SINGLE transcription...")
-            return self.transcribe_single(audio_path, output_dir)
+        return self.transcribe_single(audio_path, output_dir)
+
+        # THRESHOLD = 300
+        # if duration > THRESHOLD:
+        #     try:
+        #         print(f"DEBUG: Duration {duration}s > {THRESHOLD}s. 🚀 Starting PARALLEL transcription...")
+        #         return self.transcribe_parallel(audio_path, output_dir)
+        #     except Exception as e:
+        #         print(f"ERROR: Parallel transcription failed: {e}")
+        #         return self.transcribe_single(audio_path, output_dir)
+        # else:
+        #     print(f"DEBUG: Duration {duration}s <= {THRESHOLD}s. 🐢 Starting SINGLE transcription...")
+        #     return self.transcribe_single(audio_path, output_dir)
