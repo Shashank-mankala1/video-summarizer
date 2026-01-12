@@ -12,7 +12,7 @@ class Retriever:
         query_embedding = self.embedding_service.embed_texts([query])
         query_embedding = np.array(query_embedding).astype("float32")
 
-        distances, indices = self.vector_db.index.search(query_embedding, top_k)
+        distances, indices = self.vector_db.index.search(query_embedding, k=10)
 
         results = []
         for idx in indices[0]:

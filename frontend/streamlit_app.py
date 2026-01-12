@@ -17,6 +17,12 @@ if "task_id" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+def format_eta(seconds: int) -> str:
+    if seconds is None:
+        return ""
+    if seconds < 60:
+        return f"{seconds} seconds"
+    return f"{seconds // 60 + 1} minutes"
 
 INGEST_URL = "http://127.0.0.1:8000/video/ingest"
 QA_URL = "http://127.0.0.1:8000/qa/ask"
@@ -39,18 +45,34 @@ PROGRESS_MAP = {
 
 if st.button("Process Video"):
     res = requests.post(INGEST_URL, json={"youtube_url": youtube_link}).json()
-    st.session_state.task_id = res["task_id"]
-    st.session_state.processing = True
+    if res.get("status") == "cached":
+        st.success("Video already processed. Loaded from cache.")
+        st.session_state.summary = res.get("summary", "")
+        st.session_state.ready = True
+        st.session_state.processing = False
+        st.session_state.task_id = None
 
+    # CACHE MISS → background processing
+    else:
+        st.session_state.task_id = res["task_id"]
+        st.session_state.processing = True
+        st.session_state.ready = False
 
 if st.session_state.get("processing"):
     progress_bar = st.progress(0)
     status_text = st.empty()
-
+    eta_box = st.empty()
+    eta_box.info(f"Estimated time remaining: ...")
     while True:
         res = requests.get(
             f"http://127.0.0.1:8000/video/status/{st.session_state.task_id}"
         ).json()
+
+        eta_res = requests.get(f"http://127.0.0.1:8000/video/eta/{st.session_state.task_id}").json()
+        eta = eta_res.get("eta_seconds")
+
+        if eta:
+            eta_box.info(f"Estimated time remaining: ~{format_eta(eta)}")
 
         status = res["status"]
 
@@ -63,6 +85,7 @@ if st.session_state.get("processing"):
         status_text.text(f"Processing: {status.replace('_', ' ').title()}")
 
         if status == "completed":
+            eta_box.empty()
             st.success("Video processed successfully!")
             st.session_state.processing = False
             st.session_state.ready = True
@@ -77,26 +100,12 @@ if st.session_state.get("processing"):
         time.sleep(1)
 
 
-# if st.button("Process Video"):
-#     with st.spinner("Processing video..."):
-#         res = requests.post(
-#             INGEST_URL,
-#             json={"youtube_url": youtube_link}
-#         ).json()
-
-#         if res.get("status") == "success":
-#             st.success("Video processed successfully!")
-#             st.session_state.ready = True
-#             st.session_state.summary = res.get("summary")
-#         else:
-#             st.error("Failed to process video")
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if st.session_state.get("ready"):
     # st.divider()
-    st.subheader("Summary")
+    st.subheader("Video Summary")
     st.markdown(st.session_state.summary)
     st.divider()
     st.subheader("Ask questions about the video")
@@ -105,26 +114,6 @@ if st.session_state.get("ready"):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # question = st.chat_input("Ask a question")
-
-    # if question:
-    #     st.session_state.messages.append(
-    #         {"role": "user", "content": question}
-    #     )
-
-    #     response = requests.post(
-    #         QA_URL,
-    #         json={"question": question}
-    #     ).json()
-
-    #     answer = response["answer"]
-
-    #     with st.chat_message("assistant"):
-    #         st.markdown(answer)
-
-    #     st.session_state.messages.append(
-    #         {"role": "assistant", "content": answer}
-    #     )
     question = st.chat_input("Ask a question", key="qa")
 
     if question:

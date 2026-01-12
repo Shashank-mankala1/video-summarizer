@@ -231,3 +231,78 @@ youtube-video-summarizer/
     ├── docker-compose.yml
     └── README.md
 ```
+```
+queued
+↓
+downloading_audio
+↓
+transcribing
+↓
+chunking
+↓
+embedding
+↓
+summarizing
+↓
+saving
+↓
+completed
+
+```
+
+Planned Improvements:
+
+1. Video Ingestion Layer (VERY HIGH IMPACT)
+  A. Video-Level Caching ⭐⭐⭐⭐⭐
+
+  What: Skip entire pipeline if video already processed
+
+  Where: /video/ingest
+
+  How: Check existence of:
+
+  vector_store/{video_id}.index
+
+  summaries/{video_id}.txt
+
+  B. Background Job Queue (Advanced)
+  What: Use Redis + Celery or RQ
+
+  Where: Replace FastAPI BackgroundTasks
+
+2. Transcription Layer
+  A. Chunked Audio Transcription (Advanced)
+
+  What: Transcribe in segments concurrently
+
+  Impact: Faster for long videos
+
+3. Retrieval & Q&A Layer (HIGH QUALITY IMPACT)
+  Current State: Top K retrieval, Single question context
+
+  Improvements
+  A. Re-Ranking ⭐⭐⭐⭐
+
+  What: Retrieve top 10
+
+  How: Re-rank top 3 with cross-encoder
+
+  Impact: Better answers, Fewer "I do not know"
+
+  B. Chat-Aware Retrieval ⭐⭐⭐⭐
+
+  What: Include previous question context
+
+  Impact: Better follow-up answers, Natural conversation
+
+
+4. UX & Product Efficiency
+A. ETA Prediction ⭐⭐⭐
+
+  What: Show estimated remaining time
+
+B. Summary Streaming ⭐⭐⭐⭐
+
+  What: Stream summary generation
+
+  Instead of waiting for full summary, show chunks as they are generated[write word by word ]

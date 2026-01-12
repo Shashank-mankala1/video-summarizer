@@ -7,6 +7,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.services.qa_service import QAService
+from app.services.reranker_service import ReRankerService
+reranker = ReRankerService()
 
 router = APIRouter()
 

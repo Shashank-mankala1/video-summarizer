@@ -1,5 +1,8 @@
 import os
 from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -18,10 +21,18 @@ Transcript:
 Summary:
 """
 
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0
-        )
+        models = ["llama-3.1-8b-instant", "meta-llama/llama-guard-4-12b", "meta-llama/llama-prompt-guard-2-22m", "meta-llama/llama-prompt-guard-2-86m"]
 
-        return response.choices[0].message.content
+        for model in models:
+            try:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                print(f"Model {model} failed: {e}")
+                continue
+        
+        raise Exception("All summary models failed")

@@ -7,3 +7,7 @@ openai-whisper
 torch
 sentence-transformers
 faiss-cpu
+redis
+rq
+pydub
+sentence-transformers
