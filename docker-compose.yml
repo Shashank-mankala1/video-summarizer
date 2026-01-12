@@ -1,7 +1,6 @@
 services:
   redis:
     image: redis:7
-    container_name: redis
     ports:
       - "6379:6379"
 
@@ -24,7 +23,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
-      - redis
+      - app
 
   worker:
     image: video-summarizer-app
@@ -35,7 +34,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
-      - redis
+      - app
 
   streamlit:
     image: video-summarizer-app
