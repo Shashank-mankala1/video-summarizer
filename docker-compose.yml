@@ -34,7 +34,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
-      - app
+      - redis
+    restart: unless-stopped
 
   streamlit:
     image: video-summarizer-app
