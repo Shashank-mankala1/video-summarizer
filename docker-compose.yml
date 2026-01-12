@@ -37,7 +37,7 @@ services:
       - redis
     restart: unless-stopped
     volumes:
-      - ./cookies.txt:/app/cookies.txt:ro
+      - ./cookies.txt:/app/cookies.txt
 
   streamlit:
     image: video-summarizer-app
