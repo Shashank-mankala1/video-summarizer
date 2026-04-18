@@ -69,7 +69,7 @@ This app uses an async worker architecture. You need **3 terminals**:
 ### 1. Start Redis Server
 Ensure your Redis server is running.
 ```bash
-redis-server
+docker start redis-stack
 ```
 
 ### 2. Start the Worker (Background Processor)

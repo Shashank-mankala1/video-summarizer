@@ -4,3 +4,5 @@ data/*
 *.pyc
 linkedinpost.txt
 cookies.txt
+temp/*
+__pycache__/
